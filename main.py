@@ -1,33 +1,46 @@
 #!/usr/bin/env python
-#
-# Copyright 2007 Google Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-from google.appengine.ext import webapp
-from google.appengine.ext.webapp import util
+"""
+main.py
 
+Primary App Engine app handler
 
-class MainHandler(webapp.RequestHandler):
-    def get(self):
-        self.response.out.write('Hello world!')
+"""
+
+import sys, os
+
+package_dir = "packages"
+package_dir_path = os.path.join(os.path.dirname(__file__), package_dir)
+
+# Allow unzipped packages to be imported
+# from packages folder
+sys.path.insert(0, package_dir_path)
+
+# Append zip archives to path for zipimport
+for filename in os.listdir(package_dir_path):
+    if filename.endswith((".zip", ".egg")):
+        sys.path.insert(0, "%s/%s" % (package_dir_path, filename))
+
+from wsgiref.handlers import CGIHandler
+
+from application.settings import DEBUG_MODE
+from application import app
 
 
 def main():
-    application = webapp.WSGIApplication([('/', MainHandler)],
-                                         debug=True)
-    util.run_wsgi_app(application)
+    if DEBUG_MODE:
+        # Run debugged app
+        from werkzeug_debugger_appengine import get_debugged_app
+        app.debug=True
+        debugged_app = get_debugged_app(app)
+        CGIHandler().run(debugged_app)
+    else:
+        # Run production app
+        from google.appengine.ext.webapp.util import run_wsgi_app
+        run_wsgi_app(app)
 
 
-if __name__ == '__main__':
+# Use App Engine app caching
+if __name__ == "__main__":
     main()
+
+
