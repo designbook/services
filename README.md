@@ -8,13 +8,12 @@ using google app engine to api.designbook.in*
 The server will allow the client to create a new project, including all
 the metadata and resources related to it.
 
-   POST api/v1/projects
+    POST api/v1/projects
 
-   {
+    {
       "title": "sample title",
       "description": "project description",
       "media": "media-uri-or-blob",
-
       "process": "proces-name-or-id",
 
       "events": [
@@ -45,23 +44,23 @@ the metadata and resources related to it.
             }
          }
       ]
-   }
+    }
 
 The server **WILL** validate the JSON and if project creation is
 successful return a 201 with an *id* of the project created. The client
 **SHOULD** make note of the *id* for the project.
 
-   HTTP 201 CREATED
+    HTTP 201 CREATED
 
-   {
+    {
       "id": 1           # we could also a REST id eg. "api/v1/projects/1"
-   }
+    }
 
 ### Add event to existing project
 
-   POST api/v1/projects/<id>/events
+    POST api/v1/projects/<id>/events
 
-   {
+    {
       "name": "activity-6",
       "notes": "interview audio recording",
       "add-time": "2011-02-03 13:30 GMT",
@@ -77,14 +76,14 @@ successful return a 201 with an *id* of the project created. The client
 
          "blob": ""
       }
-   }
+    }
 
 The client for ease of upload, **MAY** upload the actual media blob
 seperately with the mimetype headers correctly set. The server will
 **ONLY** retain the last media submitted. Currently *mutliple* media for
 the same event are **NOT** allowed.
 
-   POST api/v1/projects/<id>/events/<3>/media
+    POST api/v1/projects/<id>/events/<3>/media
 
 # design.book models
 
@@ -105,7 +104,7 @@ The client **WILL** implement the following models for local storage:
 
 ## Project
 
-   project {
+    "project": {
 
       "id": 1,
       "title": "sample title",
@@ -142,12 +141,12 @@ The client **WILL** implement the following models for local storage:
             }
          }
       ]
-   }
+    }
 
 
 ## Process and Stages
 
-   process {
+    "process": {
 
       "id": 2,
 
@@ -192,24 +191,22 @@ The client **WILL** implement the following models for local storage:
             "activities": ["monkey tests", "real world exposure"]
          }
       ]
-
-   }
+    }
 
 ## Activities
 
 For now, Activities must have unique names.
 
-   activity {
+    "activity": {
 
       "name": "pointificate",
       "description": "sit with hand on chin",
       "img-uri": "http://people.pointificating.com"
-
-   }
+    }
 
 ## Media
 
-   media {
+    "media": {
 
       "id": 121
       "type": "audio"|"video"|"img",
@@ -221,4 +218,4 @@ For now, Activities must have unique names.
 
       "uri": optional uri,
 
-   }
+    }
