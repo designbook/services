@@ -38,6 +38,11 @@ class ProjectAPI(MethodView):
         pass
 
 
+def upload():
+    """ Upload file using flask api - requests.files"""
+    pass
+
+
 @login_required
 def new_example():
     """Add a new example, detecting whether or not App Engine is in read-only mode."""
