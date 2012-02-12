@@ -3,36 +3,39 @@ views.py
 
 URL route handlers
 
-Note that any handler params must match the URL route params.
-For example the *say_hello* handler, handling the URL route '/hello/<username>',
-  must be passed *username* as the argument.
-
 """
-
 
 from google.appengine.api import users
 from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError
 
-from flask import render_template, flash, url_for, redirect
+from flask import render_template, flash, url_for, redirect, request
+from flask.views import MethodView
 
-from models import ExampleModel
+#from models import ExampleModel
 from decorators import login_required, admin_required
 from forms import ExampleForm
 
+class ProjectAPI(MethodView):
 
-def home():
-    return redirect(url_for('list_examples'))
+    def get(self, project_id):
+        if project_id is None:
+            return "All Projects"
+
+        return "Project {id}".format(id=project_id)
+
+    def post(self):
+
+       project_json = request.json
+
+       project_json['id'] = 1
+       return project_json
 
 
-def say_hello(username):
-    """Contrived example to demonstrate Flask's url routing capabilities"""
-    return 'Hello %s' % username
+    def put(self, project_id):
+        pass
 
-
-def list_examples():
-    """List all examples"""
-    examples = ExampleModel.all()
-    return render_template('list_examples.html', examples=examples)
+    def delete(self, project_id):
+        pass
 
 
 @login_required
