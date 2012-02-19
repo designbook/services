@@ -1,45 +1,61 @@
 """
 models.py
 
-App Engine datastore models
+design.book datastore models
 
 """
 
 from google.appengine.ext import db
-	
-class Process(db.Model):
+
+class Model(db.Model):
+
+    def to_dict(self):
+        self_dict = dict([(p, unicode(getattr(self, p))) for p in self.fields().keys()])
+        self_dict['id'] = self.key().id_or_name()
+
+        return self_dict
+
+    def from_dict(self, src_dict):
+        for p in self.properties():
+            if p in src_dict:
+                setattr(self, p, src_dict[p])
+
+class Process(Model):
     """Processes with stages and activities"""
     title = db.StringProperty(required=True)
-	
-class Stage(db.Model):
-	"""Stage name and list of activities"""
-	name = db.StringProperty(required=True)
-	activities = db.StringListProperty(required=True)
-	process = db.ReferenceProperty(Process, collection_name='stages')
-		
-class Project(db.Model):
-	"""Project information"""
-	title = db.StringProperty(required=True)
-	description = db.StringProperty()
-	media = db.LinkProperty() #Should this be a blobProperty? may be even a media item?
-	process = db.ReferenceProperty(Process)
-	
-class Media(db.Model):
-	mediaType = db.StringProperty(required=True, choices=("audio","video","image"))
-	mimetype = db.StringProperty(required=True, choices=("image/jpeg","audio/mpeg"))
-	blob = db.BlobProperty()
-	filename = db.StringProperty()
-	timestamp = db.DateTimeProperty() #From the image file
-	uri = db.LinkProperty()
 
-class Event(db.Model):
-	project = db.ReferenceProperty(Project, collection_name='events', required=True)
-	notes = db.TextProperty()
-	eventTime = db.DateTimeProperty() #Time of media creation (not upload time)
-	media = db.ReferenceProperty(Media, required=True)
-	activity = db.StringProperty()
-	stage = db.ReferenceProperty(Stage, required=True)
-	
+class Stage(Model):
+    """Stage name and list of activities"""
+    name = db.StringProperty(required=True)
+    activities = db.StringListProperty(required=True)
+    process = db.ReferenceProperty(Process, collection_name='stages')
+
+class Project(Model):
+    """Project information"""
+    title = db.StringProperty(required=True)
+    description = db.StringProperty()
+    created = db.DateTimeProperty(auto_now_add=True)
+    media = db.StringListProperty() # media keys
+    process = db.ReferenceProperty(Process)
+    deleted = db.BooleanProperty(default=False)
+
+class Media(Model):
+    mediaType = db.StringProperty(required=True, choices=("audio","video","image"))
+    mimetype = db.StringProperty(required=True)
+    blob = db.BlobProperty()
+    filename = db.StringProperty()
+    timestamp = db.DateTimeProperty() #From the image file
+    uri = db.LinkProperty()
+
+class Event(Model):
+    project = db.ReferenceProperty(Project, collection_name='events', required=True)
+    notes = db.TextProperty()
+    eventTime = db.DateTimeProperty() #Time of media creation (not upload time)
+    media = db.ReferenceProperty(Media, collection_name='media')
+    activity = db.StringProperty()
+    stage = db.ReferenceProperty(Stage, required=True)
+    deleted = db.BooleanProperty(default=False)
+
 #Test cases
 """
 #Delete all entities

@@ -9,6 +9,8 @@ from functools import wraps
 from google.appengine.api import users
 from flask import redirect, request
 
+from application.models import Project
+
 
 def login_required(func):
     """Requires standard login credentials"""
@@ -28,4 +30,16 @@ def admin_required(func):
             return redirect(users.create_login_url(request.url))
         return func(*args, **kwargs)
     return decorated_view
+
+def project_required(f):
+    """Requires a value project"""
+    def decorator(*args, **kwargs):
+
+        p = Project.get_by_id(kwargs['project_id'])
+        if p is None:
+            return "project not found", 404
+        kwargs['project'] = p
+
+        return f(*args, **kwargs)
+    return decorator
 

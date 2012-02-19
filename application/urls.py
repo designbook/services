@@ -25,8 +25,6 @@ def register_api(view, endpoint, url, pk='id', pk_type='int'):
 # See http://code.google.com/appengine/docs/python/config/appconfig.html#Warming_Requests
 app.add_url_rule('/_ah/warmup', 'warmup', view_func=views.warmup)
 
-app.add_url_rule('/upload', 'upload', view_func=views.upload)
-
 # Add new example via web form
 app.add_url_rule('/example/new', 'new_example', view_func=views.new_example, methods=['GET', 'POST'])
 
@@ -36,9 +34,10 @@ app.add_url_rule('/admin_only', 'admin_only', view_func=views.admin_only)
 # design.book API routes
 
 register_api(views.ProjectAPI, 'project_api', '/projects/', pk='project_id')
+register_api(views.EventAPI, 'event_api', '/projects/<int:project_id>/events/', pk='event_id')
 
-
-
+app.add_url_rule('/projects/<int:project_id>/events/<int:event_id>/<media>',
+        view_func=views.media, methods=['GET'])
 
 ## Error handlers
 # Handle 404 errors
